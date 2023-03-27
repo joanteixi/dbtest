@@ -40,6 +40,7 @@ stages:
           - download: current
             artifact: ${{parameters.dropDacpacName}} 
             patterns: '**/${{parameters.projectDB}}.dacpac'
+          
           - task: SqlAzureDacpacDeployment@1
             displayName: Generate schema change script
             inputs:
