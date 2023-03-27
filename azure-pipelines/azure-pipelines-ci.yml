@@ -34,7 +34,7 @@ stages:
       inputs:
         sourceFolder: '$(System.DefaultWorkingDirectory)'
         contents: |
-          ${{parameters.solutionDirectory}}/bin/Debug/*.dacpac
+           bin/Debug/*.dacpac
         targetFolder: '$(Build.ArtifactStagingDirectory)'
 
     - task: PublishBuildArtifacts@1
