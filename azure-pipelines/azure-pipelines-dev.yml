@@ -5,7 +5,7 @@ name: $(Build.SourceBranchName)_$(Build.Reason)_.$(Build.BuildId)$(Rev:.r)
 trigger:
   branches:
     include: 
-      - dev
+      - develop
  
 variables:
 - azureSqlServerName: formaciosembismart.database.windows.net
