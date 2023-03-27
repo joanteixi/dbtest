@@ -51,7 +51,7 @@ stages:
               deployType: 'DacpacTask'
               deploymentAction: 'Script'
               additionalArguments: '/p:IgnoreAnsiNulls=True /p:IgnoreComments=True /p:DropObjectsNotInSource=True /p:DoNotDropObjectTypes="SecurityPolicies;Users;Logins;RoleMembership;Permissions" /p:IgnoreKeywordCasing=False /p:IgnoreWithNocheckOnForeignKeys=True /p:BlockOnPossibleDataLoss=${{parameters.blockDataLossOnDeployment}}'
-              dacpacFile: '$(Pipeline.Workspace)/${{parameters.dropDacpacName}}/${{parameters.projectDB}}/bin/Release/${{parameters.projectDB}}.dacpac'
+              dacpacFile: '$(Pipeline.Workspace)/${{parameters.dropDacpacName}}/${{parameters.projectDB}}/bin/Debug/${{parameters.projectDB}}.dacpac'
               ipDetectionMethod: 'AutoDetect'
           
           - task: PowerShell@2
