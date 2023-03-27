@@ -13,7 +13,7 @@ stages:
   displayName: 'Build, Validate and Publish the Database Schema'
   variables:
   - name: buildConfiguration
-    value: 'Release'
+    value: 'Debug'
 
   jobs: 
   - job: BuildDacPac

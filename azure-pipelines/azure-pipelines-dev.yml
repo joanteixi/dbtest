@@ -9,7 +9,7 @@ trigger:
  
 variables:
 - azureSqlServerName: formaciosembismart.database.windows.net
-- azureSubscription: sepr-devops-joanteixi
+- azureSubscription: sepr-joanteixi-d1
 - datbaseName: formaciosem-basic
  
 stages:
