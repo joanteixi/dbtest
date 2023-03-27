@@ -1,0 +1,28 @@
+# define here how the build will be named
+name: $(Build.SourceBranchName)_$(Build.Reason)_.$(Build.BuildId)$(Rev:.r) 
+
+# Run on changes to dev, test and prod
+trigger:
+  branches:
+    include: 
+      - dev
+ 
+variables:
+- azureSqlServerName: formaciosembismart.database.windows.net
+- azureSubscription: sepr-devops-joanteixi
+- datbaseName: formaciosem-basic
+ 
+stages:
+- template: azure-pipelines-ci.yml
+  parameters:
+    dropDacpacName: dropDacpacDev
+    solutionDirectory: './'
+- template: azure-pipelines-cd.yml  
+  parameters:
+    dropDacpacName: dropDacpacDev
+    azureSubscription: $(azureSubscription)
+    solutionDirectory: './'
+    projectDB: 'shopOnlineDB'
+    serverName: $(azureSqlServerName)
+    databaseName: $(databaseName)
+    blockDataLossOnDeployment: 'False'

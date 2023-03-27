@@ -1,0 +1,51 @@
+parameters:
+- name: dropDacPacName
+  type: string 
+  default: ''
+- name: solutionDirectory 
+  type: string 
+  default: ''   
+
+     
+stages:
+
+- stage: 'Build'
+  displayName: 'Build, Validate and Publish the Database Schema'
+  variables:
+  - name: buildConfiguration
+    value: 'Release'
+
+  jobs: 
+  - job: BuildDacPac
+    displayName: Build, Validate and Publish 
+    continueOnError: false
+    pool:
+      vmimage: 'windows-latest'
+    
+    steps:
+    - task: VSBuild@1
+      displayName: 'Build the database project'
+      inputs:
+        solution: '**\*.sln'
+        configuration: $(buildConfiguration)
+         
+    - task: CopyFiles@2
+      displayName: 'Copy dacpac file to staging directory'
+      inputs:
+        sourceFolder: '$(System.DefaultWorkingDirectory)'
+        contents: |
+          ${{parameters.solutionDirectory}}/bin/Release/*.dacpac
+        targetFolder: '$(Build.ArtifactStagingDirectory)'
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Artifact'
+      inputs:
+        pathToPublish: '$(Build.ArtifactStagingDirectory)'
+        artifactName: ${{parameters.dropDacPacName}}
+      condition: succeededOrFailed()
+            
+    - task: DeleteFiles@1
+      inputs:
+        sourceFolder: '$(Build.ArtifactStagingDirectory)'
+        contents: ${{parameters.solutionDirectory}}/*
+        removeSourceFolder: true

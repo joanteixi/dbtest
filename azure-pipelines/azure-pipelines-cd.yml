@@ -1,0 +1,91 @@
+parameters:
+- name: dropDacpacName 
+  type: string 
+  default: ''
+- name: azureSubscription 
+  type: string 
+  default: ''
+- name: solutionDirectory 
+  type: string 
+  default: ''
+- name: projectDB 
+  type: string 
+  default: ''
+- name: serverName 
+  type: string 
+  default: ''
+- name: databaseName 
+  type: string 
+  default: ''
+- name: blockDataLossOnDeployment 
+  type: string 
+  default: 'True'
+
+stages:
+
+- stage: DBAVerificationScript_${{parameters.projectDB}}
+  displayName: 'Script database schema changes'
+  dependsOn: Build
+  condition: succeeded()
+
+  jobs:
+  - deployment: DBAVerificationScript
+    pool:
+      vmimage: 'windows-latest'
+    environment: 'dbaverificationscript'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            artifact: ${{parameters.dropDacpacName}} 
+            patterns: '**/${{parameters.projectDB}}.dacpac'
+          - task: SqlAzureDacpacDeployment@1
+            displayName: Generate schema change script
+            inputs:
+              azureSubscription: ${{parameters.azureSubscription}}
+              authenticationType: 'servicePrincipal'
+              serverName: '${{parameters.serverName}}.database.windows.net'
+              databaseName: ${{parameters.databaseName}} 
+              deployType: 'DacpacTask'
+              deploymentAction: 'Script'
+              additionalArguments: '/p:IgnoreAnsiNulls=True /p:IgnoreComments=True /p:DropObjectsNotInSource=True /p:DoNotDropObjectTypes="SecurityPolicies;Users;Logins;RoleMembership;Permissions" /p:IgnoreKeywordCasing=False /p:IgnoreWithNocheckOnForeignKeys=True /p:BlockOnPossibleDataLoss=${{parameters.blockDataLossOnDeployment}}'
+              dacpacFile: '$(Pipeline.Workspace)/${{parameters.dropDacpacName}}/${{parameters.projectDB}}/bin/Release/${{parameters.projectDB}}.dacpac'
+              ipDetectionMethod: 'AutoDetect'
+          - task: PowerShell@2
+            displayName: Show Auto Generated SQL Script
+            inputs:
+              targetType: 'inline'
+              script: | 
+                Write-Host "Auto Generated SQL Update Script:"
+                Get-Content $(Agent.WorkFolder)\1\s\GeneratedOutputFiles\${{parameters.databaseName}}_Script.sql | foreach {Write-Output $_}
+
+- stage: DBAVerificationApply_${{parameters.projectDB}}
+  displayName: 'Apply database schema changes'
+  dependsOn: DBAVerificationScript_${{parameters.projectDB}}
+  condition: succeeded()
+
+  jobs:
+  - deployment: DBAVerificationApply
+    pool:
+      vmimage: 'windows-latest'
+    environment: 'dbaverificationapply'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            artifact: ${{parameters.dropDacpacName}}
+            patterns: '**/${{parameters.projectDB}}.dacpac'
+          - task: SqlAzureDacpacDeployment@1
+            displayName: 'Deploy SQL schema'
+            inputs:
+              azureSubscription: ${{parameters.azureSubscription}}
+              authenticationType: 'servicePrincipal'
+              serverName: '${{parameters.serverName}}.database.windows.net'
+              databaseName: ${{parameters.databaseName}} 
+              deployType: 'DacpacTask'
+              deploymentAction: 'Publish'
+              additionalArguments: '/p:IgnoreAnsiNulls=True /p:IgnoreComments=True /p:DropObjectsNotInSource=True /p:DoNotDropObjectTypes="SecurityPolicies;Users;Logins;RoleMembership;Permissions" /p:IgnoreKeywordCasing=False /p:IgnoreWithNocheckOnForeignKeys=True /p:BlockOnPossibleDataLoss=${{parameters.blockDataLossOnDeployment}}'
+              dacpacFile: '$(Pipeline.Workspace)/${{parameters.dropDacpacName}}/${{parameters.projectDB}}/bin/Release/${{parameters.projectDB}}.dacpac'
+              ipDetectionMethod: 'AutoDetect'
