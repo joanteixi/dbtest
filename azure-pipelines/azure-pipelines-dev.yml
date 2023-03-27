@@ -5,12 +5,15 @@ name: $(Build.SourceBranchName)_$(Build.Reason)_.$(Build.BuildId)$(Rev:.r)
 trigger:
   branches:
     include: 
-      - develop
+      - dev
  
 variables:
-- azureSqlServerName: formaciosembismart.database.windows.net
-- azureSubscription: sepr-devops-joanteixi
-- datbaseName: formaciosem-basic
+  - name: azureSqlServerName 
+    value: formaciosembismart.database.windows.net
+  - name: azureSubscription
+    value:  sepr-joanteixi-d1
+  - name:  databaseName
+    value: formaciosem-basic
  
 stages:
 - template: azure-pipelines-ci.yml
