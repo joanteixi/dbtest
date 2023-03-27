@@ -5,6 +5,5 @@
 	[CustomerId] INT NOT NULL, 
     
 	CONSTRAINT [FK_Purchasing_ToTableProduct] FOREIGN KEY ([ProductId]) REFERENCES [Product]([Id]),
-	CONSTRAINT [FK_Purchasing_ToTableCustomerr] FOREIGN KEY ([CustomerId]) REFERENCES [Customer]([Id]),
-
+	CONSTRAINT [FK_Purchasing_ToTableCustomerr] FOREIGN KEY ([CustomerId]) REFERENCES [Customer]([Id])
 )
