@@ -9,7 +9,7 @@ trigger:
  
 variables:
   - name: azureSqlServerName 
-    value: formaciosembismart.database.windows.net
+    value: formaciosembismart
   - name: azureSubscription
     value:  sepr-joanteixi-d1
   - name:  databaseName
